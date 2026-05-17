@@ -1,0 +1,92 @@
+# Grafana Alloy: agent unico per metriche (Prometheus) + log (Loki) → Grafana Cloud EU
+# Stack: burraco.grafana.net (region EU)
+#
+# Credenziali iniettate da SealedSecret "grafana-cloud-credentials" con chiavi:
+#   PROM_REMOTE_WRITE_URL, PROM_USER, PROM_PASS, LOKI_PUSH_URL, LOKI_USER, LOKI_PASS
+
+controller:
+  type: daemonset    # single-node basta, ma DS è il pattern standard
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits:   { cpu: 300m, memory: 192Mi }
+
+alloy:
+  envFrom:
+    - secretRef:
+        name: grafana-cloud-credentials
+
+  configMap:
+    create: true
+    content: |
+      // === Discovery dei pod K8s ===
+      discovery.kubernetes "pods" {
+        role = "pod"
+      }
+
+      // Manteniamo solo i pod del namespace burraco con annotation prometheus.io/scrape=true
+      discovery.relabel "burraco_pods" {
+        targets = discovery.kubernetes.pods.targets
+
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          regex         = "burraco"
+          action        = "keep"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
+          regex         = "true"
+          action        = "keep"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+          target_label  = "__metrics_path__"
+          regex         = "(.+)"
+        }
+        rule {
+          source_labels = ["__address__", "__meta_kubernetes_pod_annotation_prometheus_io_port"]
+          target_label  = "__address__"
+          regex         = "([^:]+)(?::\\d+)?;(\\d+)"
+          replacement   = "$1:$2"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+          target_label  = "service"
+        }
+      }
+
+      // === Scrape metriche ===
+      prometheus.scrape "burraco" {
+        targets    = discovery.relabel.burraco_pods.output
+        forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+        scrape_interval = "30s"
+      }
+
+      prometheus.remote_write "grafana_cloud" {
+        endpoint {
+          url = sys.env("PROM_REMOTE_WRITE_URL")
+          basic_auth {
+            username = sys.env("PROM_USER")
+            password = sys.env("PROM_PASS")
+          }
+        }
+      }
+
+      // === Log dai pod (stdout/stderr via journald/cri) ===
+      loki.source.kubernetes "pods" {
+        targets    = discovery.relabel.burraco_pods.output
+        forward_to = [loki.write.grafana_cloud.receiver]
+      }
+
+      loki.write "grafana_cloud" {
+        endpoint {
+          url = sys.env("LOKI_PUSH_URL")
+          basic_auth {
+            username = sys.env("LOKI_USER")
+            password = sys.env("LOKI_PASS")
+          }
+        }
+        external_labels = {
+          cluster = "burraco-prod-01",
+          env     = "prod",
+        }
+      }

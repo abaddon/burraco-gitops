@@ -1,0 +1,19 @@
+name: tournament-service
+image:
+  repository: ghcr.io/abaddon/ai-burraco/tournament-service
+  tag: main
+service:
+  port: 8088
+database:
+  serviceDb: burraco_tournament
+ingress:
+  pathPrefixes:
+    - /api/v1/tournaments
+# Servizio a basso traffico — RAM ridotta per stare nel budget VPS
+resources:
+  requests:
+    cpu: 150m
+    memory: 384Mi
+  limits:
+    cpu: 800m
+    memory: 512Mi

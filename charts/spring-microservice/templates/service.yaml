@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "spring-microservice.name" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "spring-microservice.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    {{- include "spring-microservice.selectorLabels" . | nindent 4 }}

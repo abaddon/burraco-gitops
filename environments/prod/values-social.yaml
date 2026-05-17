@@ -1,0 +1,13 @@
+name: social-service
+image:
+  repository: ghcr.io/abaddon/ai-burraco/social-service
+  tag: main
+service:
+  port: 8083
+database:
+  serviceDb: burraco_social
+ingress:
+  pathPrefixes:
+    - /api/v1/social
+  websocketPaths:
+    - /ws/social

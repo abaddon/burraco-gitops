@@ -1,0 +1,21 @@
+# Mai committare secret in chiaro
+*.secret.yaml
+secret-*.yaml
+*-secret.yaml
+
+# Mai committare backup chiave master Sealed Secrets
+sealed-secrets-master-key*.yaml
+*.BACKUP.yaml
+
+# Mai committare kubeconfig
+kubeconfig
+*.kubeconfig
+.kube/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store

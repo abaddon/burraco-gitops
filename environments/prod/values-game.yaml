@@ -1,0 +1,21 @@
+name: game-service
+image:
+  repository: ghcr.io/abaddon/ai-burraco/game-service
+  tag: main
+service:
+  port: 8085
+database:
+  serviceDb: burraco_game
+ingress:
+  pathPrefixes:
+    - /api/v1/game
+  websocketPaths:
+    - /ws/game
+# game-service è l'event-sourced aggregate; serve un po' più di memoria per snapshot/replay
+resources:
+  requests:
+    cpu: 300m
+    memory: 640Mi
+  limits:
+    cpu: 1500m
+    memory: 768Mi

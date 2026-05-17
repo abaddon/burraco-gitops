@@ -1,0 +1,11 @@
+name: ranking-service
+image:
+  repository: ghcr.io/abaddon/ai-burraco/ranking-service
+  tag: main
+service:
+  port: 8087
+database:
+  serviceDb: burraco_ranking
+ingress:
+  pathPrefixes:
+    - /api/v1/ranking

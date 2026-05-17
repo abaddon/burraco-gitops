@@ -1,0 +1,37 @@
+# Traefik su single-node k3s: hostPort diretto su 80/443
+deployment:
+  kind: DaemonSet           # un solo pod per node, ma garantito sul node
+
+ports:
+  web:
+    port: 80
+    hostPort: 80
+    redirectTo:
+      port: websecure
+  websecure:
+    port: 443
+    hostPort: 443
+    tls:
+      enabled: true
+
+# IngressRoute è il CRD nativo Traefik (i nostri chart ne creano uno per servizio)
+providers:
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: true
+  kubernetesIngress:
+    enabled: false          # usiamo solo IngressRoute, no Ingress standard
+
+logs:
+  general:
+    level: WARN
+  access:
+    enabled: false          # i log applicativi vanno via Grafana Alloy
+
+resources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits:   { cpu: 500m, memory: 256Mi }
+
+# Service: usiamo hostPort, non serve LoadBalancer
+service:
+  type: ClusterIP

@@ -1,0 +1,11 @@
+name: player-service
+image:
+  repository: ghcr.io/abaddon/ai-burraco/player-service
+  tag: main
+service:
+  port: 8082
+database:
+  serviceDb: burraco_player
+ingress:
+  pathPrefixes:
+    - /api/v1/players

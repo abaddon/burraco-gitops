@@ -1,0 +1,29 @@
+{{- if and .Values.ingress.enabled (or .Values.ingress.pathPrefixes .Values.ingress.websocketPaths) }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "spring-microservice.name" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "spring-microservice.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    {{- range .Values.ingress.pathPrefixes }}
+    - match: Host(`{{ $.Values.ingress.host }}`) && PathPrefix(`{{ . }}`)
+      kind: Rule
+      services:
+        - name: {{ include "spring-microservice.name" $ }}
+          port: {{ $.Values.service.port }}
+    {{- end }}
+    {{- range .Values.ingress.websocketPaths }}
+    - match: Host(`{{ $.Values.ingress.host }}`) && PathPrefix(`{{ . }}`)
+      kind: Rule
+      services:
+        - name: {{ include "spring-microservice.name" $ }}
+          port: {{ $.Values.service.port }}
+    {{- end }}
+  tls:
+    secretName: {{ .Values.ingress.tlsSecretName }}
+{{- end }}

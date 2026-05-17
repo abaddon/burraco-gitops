@@ -1,0 +1,6 @@
+apiVersion: v2
+name: nextjs-web
+description: Chart per il frontend Next.js di AI-Burraco
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

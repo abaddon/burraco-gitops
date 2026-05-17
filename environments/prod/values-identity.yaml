@@ -1,0 +1,22 @@
+name: identity-service
+image:
+  repository: ghcr.io/abaddon/ai-burraco/identity-service
+  tag: main
+service:
+  port: 8091
+database:
+  serviceDb: burraco_identity
+ingress:
+  pathPrefixes:
+    - /api/v1/identity
+    - /api/v1/auth
+envFromSecrets:
+  - postgres-credentials
+  - redis-password
+  - jwt-keys
+  - brevo-api-key
+env:
+  SPRING_PROFILES_ACTIVE: prod
+  BREVO_SENDER_EMAIL: noreply@aiburraco.com
+  BREVO_SENDER_NAME: "AI Burraco"
+  APP_BASE_URL: https://burraco.qwertyha.co.uk

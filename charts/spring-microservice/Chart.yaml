@@ -1,0 +1,6 @@
+apiVersion: v2
+name: spring-microservice
+description: Chart parametrizzato per i servizi Spring Boot di AI-Burraco
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

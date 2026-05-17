@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: backend-services
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - { name: identity-service }
+          - { name: player-service }
+          - { name: social-service }
+          - { name: lobby-service }
+          - { name: game-service }
+          - { name: ranking-service }
+          - { name: tournament-service }
+          - { name: notification-service }
+  template:
+    metadata:
+      name: '{{name}}'
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      sources:
+        - repoURL: https://github.com/abaddon/burraco-gitops
+          targetRevision: main
+          path: charts/spring-microservice
+          helm:
+            valueFiles:
+              - $values/environments/prod/values-{{name}}.yaml
+        - repoURL: https://github.com/abaddon/burraco-gitops
+          targetRevision: main
+          ref: values
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: burraco
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

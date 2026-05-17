@@ -1,0 +1,16 @@
+name: lobby-service
+image:
+  repository: ghcr.io/abaddon/ai-burraco/lobby-service
+  tag: main
+service:
+  port: 8084
+database:
+  serviceDb: burraco_lobby
+ingress:
+  pathPrefixes:
+    - /api/v1/lobby
+  websocketPaths:
+    - /ws/lobby
+env:
+  SPRING_PROFILES_ACTIVE: prod
+  GAME_SERVICE_URL: http://game-service.burraco.svc.cluster.local:8085

@@ -1,0 +1,22 @@
+# Espone l'UI di ArgoCD come device Tailscale.
+# Raggiungibile a: https://argocd.tailc1547d.ts.net (solo da device del tuo tailnet).
+#
+# Il Tailscale Operator (installato in Fase 2 / bootstrap/install.sh) intercetta
+# le annotation tailscale.com/* sui Service e crea un proxy verso il tailnet.
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-server-tailscale
+  namespace: argocd
+  annotations:
+    tailscale.com/expose: "true"
+    tailscale.com/hostname: "argocd"
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: argocd-server
+  ports:
+    - name: https
+      port: 443
+      targetPort: 8080
+      protocol: TCP

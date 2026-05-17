@@ -1,0 +1,28 @@
+name: notification-service
+image:
+  repository: ghcr.io/abaddon/ai-burraco/notification-service
+  tag: main
+service:
+  port: 8089
+database:
+  serviceDb: burraco_notification
+ingress:
+  pathPrefixes:
+    - /api/v1/notifications
+envFromSecrets:
+  - postgres-credentials
+  - redis-password
+  - jwt-keys
+  - brevo-api-key
+env:
+  SPRING_PROFILES_ACTIVE: prod
+  BREVO_SENDER_EMAIL: noreply@aiburraco.com
+  BREVO_SENDER_NAME: "AI Burraco"
+# Servizio a basso traffico — RAM ridotta per stare nel budget VPS
+resources:
+  requests:
+    cpu: 150m
+    memory: 384Mi
+  limits:
+    cpu: 800m
+    memory: 512Mi

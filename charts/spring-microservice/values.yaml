@@ -1,0 +1,74 @@
+# Default values per il chart spring-microservice.
+# Ogni servizio fornisce il suo values-{nome}.yaml in environments/prod/.
+
+# Identità del servizio
+name: ""                       # obbligatorio: identity-service, player-service, ecc.
+namespace: burraco
+
+image:
+  repository: ""               # obbligatorio: ghcr.io/abaddon/ai-burraco/<service>
+  tag: "main"                  # bumpato dalla CI
+  pullPolicy: IfNotPresent
+
+replicas: 1
+
+service:
+  port: 8080                   # porta interna del container Spring Boot
+
+# Risorse — tight per stare nei 12 GB del VPS
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 640Mi
+
+jvm:
+  opts: "-XX:MaxRAMPercentage=70.0 -XX:+UseG1GC"
+
+# Variabili d'ambiente non-secret. I secret vengono iniettati via envFrom (vedi sotto).
+env:
+  SPRING_PROFILES_ACTIVE: prod
+
+# Database (Postgres). Se serviceDb è impostato, viene generato lo SPRING_DATASOURCE_URL.
+database:
+  enabled: true
+  serviceDb: ""                # es. burraco_identity
+
+# Kafka/Redpanda
+kafka:
+  enabled: true
+  bootstrapServers: redpanda.infra.svc.cluster.local:9092
+  schemaRegistryUrl: http://redpanda.infra.svc.cluster.local:8081
+
+# Redis
+redis:
+  enabled: true
+  host: redis-master.infra.svc.cluster.local
+
+# Secret references — i SealedSecret committati in environments/prod/secrets/
+# vengono materializzati come Secret normali e referenziati qui via envFrom.
+envFromSecrets:
+  - postgres-credentials
+  - redis-password
+  - jwt-keys
+
+# Ingress (Traefik IngressRoute CRD)
+ingress:
+  enabled: true
+  host: burraco.qwertyha.co.uk
+  pathPrefixes: []             # es. ["/api/v1/identity", "/api/v1/auth"]
+  websocketPaths: []           # es. ["/ws/game"]
+  tlsSecretName: burraco-tls
+
+# Health checks (Spring Boot Actuator)
+healthcheck:
+  path: /actuator/health
+  livenessInitialDelaySeconds: 60
+  readinessInitialDelaySeconds: 30
+
+# Prometheus scraping (Grafana Cloud via Alloy)
+metrics:
+  enabled: true
+  path: /actuator/prometheus

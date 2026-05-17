@@ -1,0 +1,3 @@
+# Override prod del chart nextjs-web — al momento usa i default
+image:
+  tag: main

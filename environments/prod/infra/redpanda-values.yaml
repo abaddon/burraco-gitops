@@ -1,0 +1,50 @@
+# Single-broker Redpanda — niente TLS/SASL (cluster privato, accesso solo intra-cluster)
+statefulset:
+  replicas: 1
+
+resources:
+  cpu:
+    cores: 1
+  memory:
+    container:
+      max: 1536Mi
+  redpanda:
+    memory: 1G
+    reserveMemory: 0M
+    overprovisioned: true
+
+storage:
+  persistentVolume:
+    enabled: true
+    storageClass: local-path
+    size: 10Gi
+
+tls:
+  enabled: false
+
+auth:
+  sasl:
+    enabled: false
+
+listeners:
+  kafka:
+    port: 9092
+  schemaRegistry:
+    port: 8081
+
+# Niente external listener — l'accesso è solo intra-cluster
+external:
+  enabled: false
+
+# Redpanda Console gestita inline dal chart
+console:
+  enabled: true
+  ingress:
+    enabled: false   # esposto solo via Tailscale o port-forward
+  console:
+    config:
+      kafka:
+        brokers: ["redpanda.infra.svc.cluster.local:9092"]
+        schemaRegistry:
+          enabled: true
+          urls: ["http://redpanda.infra.svc.cluster.local:8081"]

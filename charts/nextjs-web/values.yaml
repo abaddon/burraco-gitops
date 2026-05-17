@@ -1,0 +1,29 @@
+name: web
+namespace: burraco
+
+image:
+  repository: ghcr.io/abaddon/ai-burraco/web
+  tag: main
+  pullPolicy: IfNotPresent
+
+replicas: 1
+
+service:
+  port: 3000
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 192Mi
+  limits:
+    cpu: 500m
+    memory: 320Mi
+
+ingress:
+  enabled: true
+  host: burraco.qwertyha.co.uk
+  tlsSecretName: burraco-tls
+
+env:
+  NEXT_PUBLIC_API_URL: https://burraco.qwertyha.co.uk
+  NEXT_PUBLIC_WS_URL: wss://burraco.qwertyha.co.uk

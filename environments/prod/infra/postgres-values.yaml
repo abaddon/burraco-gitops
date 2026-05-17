@@ -1,0 +1,31 @@
+global:
+  postgresql:
+    auth:
+      existingSecret: postgres-credentials   # SealedSecret committato
+      secretKeys:
+        adminPasswordKey: POSTGRES_PASSWORD
+
+architecture: standalone
+
+primary:
+  persistence:
+    enabled: true
+    storageClass: local-path
+    size: 20Gi
+
+  resources:
+    requests: { cpu: 250m, memory: 512Mi }
+    limits:   { cpu: 2000m, memory: 1Gi }
+
+  # Crea gli 8 database al primo boot. Porting di docker/init-databases.sh.
+  initdb:
+    scripts:
+      00-create-databases.sql: |
+        CREATE DATABASE burraco_identity;
+        CREATE DATABASE burraco_player;
+        CREATE DATABASE burraco_social;
+        CREATE DATABASE burraco_lobby;
+        CREATE DATABASE burraco_game;
+        CREATE DATABASE burraco_ranking;
+        CREATE DATABASE burraco_tournament;
+        CREATE DATABASE burraco_notification;
