@@ -20,7 +20,7 @@ providers:
     enabled: true
     allowCrossNamespace: true
   kubernetesIngress:
-    enabled: false          # usiamo solo IngressRoute, no Ingress standard
+    enabled: true           # serve per il solver HTTP-01 di cert-manager (Ingress temporaneo)
 
 logs:
   general:

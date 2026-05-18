@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: burraco-tls
+  namespace: burraco
+spec:
+  secretName: burraco-tls           # Secret materializzato qui dopo l'emissione
+  issuerRef:
+    name: letsencrypt-prod          # ClusterIssuer creato dal bootstrap
+    kind: ClusterIssuer
+  dnsNames:
+    - burraco.qwertyha.co.uk
+  privateKey:
+    algorithm: ECDSA
+    size: 256
