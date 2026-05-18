@@ -9,6 +9,11 @@ spec:
     privateKeySecretRef:
       name: letsencrypt-prod-account-key
     solvers:
-      - http01:
-          ingress:
-            class: traefik
+      # DNS-01 con Cloudflare: serve API token nel namespace cert-manager
+      # con scope Zone:DNS:Edit sulla zone qwertyha.co.uk.
+      # SealedSecret committato in environments/prod/secrets/cloudflare-api-token.sealed.yaml
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token
