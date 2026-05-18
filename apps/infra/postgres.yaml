@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: https://charts.bitnami.com/bitnami
       chart: postgresql
-      targetRevision: 16.0.0
+      targetRevision: 16.14.0
       helm:
         valueFiles:
           - $values/environments/prod/infra/postgres-values.yaml
