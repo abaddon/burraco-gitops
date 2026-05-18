@@ -17,6 +17,6 @@ envFromSecrets:
   - brevo-api-key
 env:
   SPRING_PROFILES_ACTIVE: prod
-  BREVO_SENDER_EMAIL: noreply@aiburraco.com
+  BREVO_SENDER_EMAIL: noreply@burraco.qwertyha.co.uk
   BREVO_SENDER_NAME: "AI Burraco"
   APP_BASE_URL: https://burraco.qwertyha.co.uk
