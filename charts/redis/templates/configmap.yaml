@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/part-of: ai-burraco
+data:
+  redis.conf: |
+    bind 0.0.0.0
+    protected-mode yes
+    port {{ .Values.service.port }}
+    appendonly yes
+    appendfsync everysec
+    dir /data
+    maxmemory-policy noeviction

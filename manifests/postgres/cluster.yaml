@@ -1,0 +1,46 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: burraco
+  namespace: infra
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.0
+
+  storage:
+    storageClass: local-path
+    size: 20Gi
+
+  # Secret usato sia per superuser sia per il default app user
+  # Deve contenere keys: username, password
+  bootstrap:
+    initdb:
+      database: burraco_identity
+      owner: burraco
+      secret:
+        name: postgres-credentials
+      # Tutti gli altri database vengono creati post-init.
+      # Owner = burraco così Spring/Flyway possono creare schemi e tabelle.
+      postInitApplicationSQL:
+        - CREATE DATABASE burraco_player OWNER burraco
+        - CREATE DATABASE burraco_social OWNER burraco
+        - CREATE DATABASE burraco_lobby OWNER burraco
+        - CREATE DATABASE burraco_game OWNER burraco
+        - CREATE DATABASE burraco_ranking OWNER burraco
+        - CREATE DATABASE burraco_tournament OWNER burraco
+        - CREATE DATABASE burraco_notification OWNER burraco
+
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: 2000m
+
+  # Metriche: il pod CNPG espone Prometheus su :9187 con annotation custom.
+  # Grafana Alloy le scoverà via discovery sui pod del namespace infra
+  # se ci sono le annotazioni standard prometheus.io/scrape.
+  monitoring:
+    enablePodMonitor: false
+    customQueriesConfigMap: []

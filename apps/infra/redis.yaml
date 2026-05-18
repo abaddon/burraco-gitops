@@ -8,9 +8,9 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: https://charts.bitnami.com/bitnami
-      chart: redis
-      targetRevision: 20.0.0
+    - repoURL: https://github.com/abaddon/burraco-gitops
+      targetRevision: main
+      path: charts/redis
       helm:
         valueFiles:
           - $values/environments/prod/infra/redis-values.yaml

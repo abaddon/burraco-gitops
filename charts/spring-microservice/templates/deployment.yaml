@@ -33,7 +33,7 @@ spec:
               value: {{ .Values.jvm.opts | quote }}
             {{- if .Values.database.enabled }}
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://postgres-postgresql.infra.svc.cluster.local:5432/{{ required "values.database.serviceDb è obbligatorio quando database.enabled=true" .Values.database.serviceDb }}"
+              value: "jdbc:postgresql://burraco-rw.infra.svc.cluster.local:5432/{{ required "values.database.serviceDb è obbligatorio quando database.enabled=true" .Values.database.serviceDb }}"
             {{- end }}
             {{- if .Values.kafka.enabled }}
             - name: SPRING_KAFKA_BOOTSTRAP_SERVERS

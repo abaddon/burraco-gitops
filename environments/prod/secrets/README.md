@@ -7,7 +7,7 @@ Sono safe da committare: solo il controller `sealed-secrets-controller` nel clus
 
 | Nome | Chiavi | Usato da |
 |---|---|---|
-| `postgres-credentials` | `POSTGRES_PASSWORD`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD` | tutti i servizi Spring + chart postgres |
+| `postgres-credentials` | `username`, `password` (CNPG basic-auth) + `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD` (per Spring) | CNPG Cluster + tutti i servizi Spring |
 | `redis-password` | `REDIS_PASSWORD`, `SPRING_DATA_REDIS_PASSWORD` | tutti i servizi Spring + chart redis |
 | `jwt-keys` | `JWT_PUBLIC_KEY`, `JWT_PRIVATE_KEY` | identity-service (privata + pubblica), altri servizi (solo pubblica) |
 | `brevo-api-key` | `BREVO_API_KEY` | identity-service, notification-service |

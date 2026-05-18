@@ -1,0 +1,25 @@
+image:
+  repository: redis
+  tag: 7.4-alpine
+  pullPolicy: IfNotPresent
+
+service:
+  port: 6379
+
+persistence:
+  enabled: true
+  size: 2Gi
+  storageClass: local-path
+
+# Secret esistente che contiene REDIS_PASSWORD (gestito da SealedSecret committato)
+auth:
+  existingSecret: redis-password
+  existingSecretPasswordKey: REDIS_PASSWORD
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 192Mi

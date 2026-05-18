@@ -42,10 +42,10 @@ kafka:
   bootstrapServers: redpanda.infra.svc.cluster.local:9092
   schemaRegistryUrl: http://redpanda.infra.svc.cluster.local:8081
 
-# Redis
+# Redis (mini-chart custom in charts/redis/)
 redis:
   enabled: true
-  host: redis-master.infra.svc.cluster.local
+  host: redis.infra.svc.cluster.local
 
 # Secret references — i SealedSecret committati in environments/prod/secrets/
 # vengono materializzati come Secret normali e referenziati qui via envFrom.

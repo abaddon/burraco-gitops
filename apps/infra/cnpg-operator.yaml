@@ -1,21 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: postgres
+  name: cnpg-operator
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
-    repoURL: https://github.com/abaddon/burraco-gitops
-    targetRevision: main
-    path: manifests/postgres
-    directory:
-      recurse: false
+    repoURL: https://cloudnative-pg.github.io/charts
+    chart: cloudnative-pg
+    targetRevision: 0.22.1
   destination:
     server: https://kubernetes.default.svc
-    namespace: infra
+    namespace: cnpg-system
   syncPolicy:
     automated:
       prune: true
