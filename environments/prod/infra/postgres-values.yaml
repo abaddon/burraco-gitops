@@ -5,6 +5,14 @@ global:
       secretKeys:
         adminPasswordKey: POSTGRES_PASSWORD
 
+# Bitnami ha rimosso le immagini gratis da docker.io/bitnami/* nell'agosto 2025.
+# Usiamo bitnamilegacy/* (frozen, gratis, niente security updates).
+# Quando migreremo a un chart "vero prod" (es. CloudNativePG), questo override sparisce.
+image:
+  registry: docker.io
+  repository: bitnamilegacy/postgresql
+  tag: 17.0.0-debian-12-r0
+
 architecture: standalone
 
 primary:

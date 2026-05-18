@@ -1,3 +1,23 @@
+# Bitnami ha rimosso le immagini gratis da docker.io/bitnami/* nell'agosto 2025.
+# Usiamo bitnamilegacy/* (frozen, gratis, niente security updates).
+image:
+  registry: docker.io
+  repository: bitnamilegacy/redis
+  tag: 7.4.0-debian-12-r0
+
+# Stesso fix per il sidecar metrics e kubectl init container, se abilitati dal chart
+metrics:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/redis-exporter
+    tag: 1.62.0-debian-12-r0
+
+sysctl:
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/os-shell
+    tag: 12-debian-12-r30
+
 architecture: standalone
 
 auth:
