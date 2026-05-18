@@ -2,7 +2,7 @@ name: web
 namespace: burraco
 
 image:
-  repository: ghcr.io/abaddon/ai-burraco/web
+  repository: ghcr.io/abaddon/ai-burraco-web
   tag: main
   pullPolicy: IfNotPresent
 
