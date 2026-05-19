@@ -1,7 +1,7 @@
 name: notification-service
 image:
   repository: ghcr.io/abaddon/ai-burraco-notification-service
-  tag: 7ff3cf5fe08d15b862da15554f75211983fb5526
+  tag: b9f777c7f31664db5be937415ca4c22f0106a021
 service:
   port: 8088
 database:
