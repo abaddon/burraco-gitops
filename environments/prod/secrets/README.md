@@ -11,10 +11,45 @@ Sono safe da committare: solo il controller `sealed-secrets-controller` nel clus
 | `redis-password` | `REDIS_PASSWORD`, `SPRING_DATA_REDIS_PASSWORD` | tutti i servizi Spring + chart redis |
 | `jwt-keys` | `JWT_PUBLIC_KEY`, `JWT_PRIVATE_KEY` | identity-service (privata + pubblica), altri servizi (solo pubblica) |
 | `brevo-api-key` | `BREVO_API_KEY` | identity-service, notification-service |
+| `otel-otlp-credentials` | `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_HEADERS` | tutti i servizi Spring (tracing OTLP) |
 | `grafana-cloud-credentials` | `PROM_REMOTE_WRITE_URL`, `PROM_USER`, `PROM_PASS`, `LOKI_PUSH_URL`, `LOKI_USER`, `LOKI_PASS` | grafana-alloy |
 | `tailscale-oauth` | `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_CLIENT_SECRET` | tailscale-operator (in realtà passato via helm install, vedi `bootstrap/install.sh`) |
 
 Tutti i secret applicativi vivono nel namespace `burraco`. Quelli infra nel rispettivo namespace (`infra`, `observability`).
+
+## `otel-otlp-credentials` — telemetria OpenTelemetry
+
+I servizi Spring esportano le **tracce** via OTLP (metriche e log restano ad Alloy → Grafana Cloud).
+L'endpoint OTLP e l'header di autenticazione del backend sono *operator-supplied*: vanno in questo
+SealedSecret, namespace `burraco`, con **esattamente** queste due chiavi — diventano env var perché
+il chart `spring-microservice` referenzia il secret via `envFrom`:
+
+| Chiave | Esempio (Grafana Cloud OTLP) |
+|---|---|
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `https://otlp-gateway-prod-eu-west-2.grafana.net/otlp` |
+| `OTEL_EXPORTER_OTLP_HEADERS`  | `Authorization=Basic%20<base64(instanceID:token)>` |
+
+> ⚠️ Nel valore di `OTEL_EXPORTER_OTLP_HEADERS` lo spazio va codificato come `%20`: è una lista
+> `chiave=valore` separata da virgole, gli spazi letterali la rompono.
+
+Il chart referenzia questo secret come `secretRef` **opzionale** (`optional: true`): finché non lo
+sealati i pod partono comunque, ma l'SDK OTel logga warning di export falliti. Sealalo appena
+possibile per chiudere quella finestra. Per disattivare del tutto il tracing nel frattempo:
+`otel.enabled=false` in `charts/spring-microservice/values.yaml`.
+
+```bash
+kubectl create secret generic otel-otlp-credentials \
+  --namespace=burraco \
+  --from-literal=OTEL_EXPORTER_OTLP_ENDPOINT='https://otlp-gateway-.../otlp' \
+  --from-literal=OTEL_EXPORTER_OTLP_HEADERS='Authorization=Basic%20...' \
+  --dry-run=client -o yaml | \
+  kubeseal --controller-namespace=kube-system \
+    --controller-name=sealed-secrets-controller -o yaml \
+  > environments/prod/secrets/otel-otlp-credentials.sealed.yaml
+
+git add environments/prod/secrets/otel-otlp-credentials.sealed.yaml
+git commit -m "feat(secrets): otel otlp credentials"
+```
 
 ## Generare un SealedSecret
 
