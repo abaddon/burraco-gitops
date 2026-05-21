@@ -72,3 +72,30 @@ healthcheck:
 metrics:
   enabled: true
   path: /actuator/prometheus
+
+# OpenTelemetry — tracing distribuito.
+# Metriche e log sono già coperti da Grafana Alloy (Prometheus scrape + Loki),
+# quindi qui esportiamo SOLO le tracce via OTLP per evitare doppio invio
+# (e doppia fatturazione) verso Grafana Cloud.
+#
+# OTEL_EXPORTER_OTLP_ENDPOINT e OTEL_EXPORTER_OTLP_HEADERS NON stanno qui:
+# sono operator-supplied e vivono nel SealedSecret `otel-otlp-credentials`
+# (vedi environments/prod/secrets/README.md), referenziato come secretRef
+# OPZIONALE — finché il secret non esiste i pod partono comunque, l'SDK
+# OTel logga warning di export ma non va in crash.
+otel:
+  enabled: true
+  # Esposto come resource attribute deployment.environment.
+  environment: prod
+  # Protocollo OTLP: http/protobuf è il più compatibile con i gateway gestiti.
+  protocol: http/protobuf
+  # Exporter per signal. metrics/logs = none perché già coperti da Alloy.
+  tracesExporter: otlp
+  metricsExporter: none
+  logsExporter: none
+  # Campionamento tracce — 10% in prod (VPS e tier Grafana Cloud risicati).
+  tracesSampler: parentbased_traceidratio
+  tracesSamplerArg: "0.1"
+  # SealedSecret (namespace burraco) con OTEL_EXPORTER_OTLP_ENDPOINT e
+  # OTEL_EXPORTER_OTLP_HEADERS. Lo creano/sealano gli operator.
+  credentialsSecret: otel-otlp-credentials

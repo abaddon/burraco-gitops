@@ -49,10 +49,37 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
+            {{- if .Values.otel.enabled }}
+            # OpenTelemetry — vedi blocco `otel` in values.yaml.
+            # Endpoint e header di auth arrivano dal secretRef opzionale sotto.
+            - name: OTEL_SERVICE_NAME
+              value: {{ include "spring-microservice.name" . | quote }}
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "service.namespace={{ .Values.namespace }},deployment.environment={{ .Values.otel.environment }}"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: {{ .Values.otel.protocol | quote }}
+            - name: OTEL_TRACES_EXPORTER
+              value: {{ .Values.otel.tracesExporter | quote }}
+            - name: OTEL_METRICS_EXPORTER
+              value: {{ .Values.otel.metricsExporter | quote }}
+            - name: OTEL_LOGS_EXPORTER
+              value: {{ .Values.otel.logsExporter | quote }}
+            - name: OTEL_TRACES_SAMPLER
+              value: {{ .Values.otel.tracesSampler | quote }}
+            - name: OTEL_TRACES_SAMPLER_ARG
+              value: {{ .Values.otel.tracesSamplerArg | quote }}
+            {{- end }}
           envFrom:
             {{- range .Values.envFromSecrets }}
             - secretRef:
                 name: {{ . }}
+            {{- end }}
+            {{- if .Values.otel.enabled }}
+            # Endpoint OTLP + header di auth, operator-supplied. Opzionale:
+            # i pod partono anche se il secret non è ancora stato sealato.
+            - secretRef:
+                name: {{ .Values.otel.credentialsSecret }}
+                optional: true
             {{- end }}
           livenessProbe:
             httpGet:
