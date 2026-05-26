@@ -19,3 +19,6 @@ kubeconfig
 
 # OS
 .DS_Store
+.claude/runs/
+.claude/worktrees/
+.claude/settings.local.json
