@@ -28,13 +28,14 @@ and will get its own story. Meanwhile we need a clean log stream now,
 and we need the chart's *default* to reflect the cluster's *actual*
 working state.
 
-We considered scoping the disable per-service via the
-`environments/prod/values-<svc>.yaml` files. That works mechanically
-but is the wrong shape: the broken artefact is one cluster-wide
-SealedSecret consumed identically by every Spring service. Disabling
-"per service" would mean editing ~9 files for what is really one
-decision. Equally, when we re-enable, we want it to come back at the
-chart-default level, not as N scattered overrides.
+We considered scoping the disable per-service via the per-service
+override files (e.g. `environments/prod/values-identity-service.yaml`,
+`environments/prod/values-lobby-service.yaml`, etc.). That works
+mechanically but is the wrong shape: the broken artefact is one
+cluster-wide SealedSecret consumed identically by every Spring service.
+Disabling "per service" would mean editing ~9 files for what is really
+one decision. Equally, when we re-enable, we want it to come back at
+the chart-default level, not as N scattered overrides.
 
 ## Decision
 
