@@ -1,0 +1,53 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-topic-init
+  namespace: infra
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 6
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: rpk
+          image: docker.redpanda.com/redpandadata/redpanda:v24.3.1
+          env:
+            - name: BROKER
+              value: "redpanda.infra.svc.cluster.local:9092"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              for entry in \
+                "identity.events:3" \
+                "player.events:3" \
+                "social.friends:3" \
+                "social.blocks:3" \
+                "social.messages:3" \
+                "lobby.rooms:3" \
+                "lobby.match-requests:3" \
+                "game.events:6" \
+                "ranking.results:3" \
+                "tournament.events:3" \
+                "notification.requests:3"; do
+                topic="${entry%%:*}"
+                partitions="${entry##*:}"
+                rpk topic create "$topic" \
+                  --partitions "$partitions" \
+                  --replicas 1 \
+                  --if-not-exists \
+                  --brokers "$BROKER"
+              done
+              rpk topic list --brokers "$BROKER"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi

@@ -84,7 +84,19 @@ metrics:
 # OPZIONALE — finché il secret non esiste i pod partono comunque, l'SDK
 # OTel logga warning di export ma non va in crash.
 otel:
-  enabled: true
+  # 2026-05-26: Disabled by default while prod SealedSecret `otel-otlp-credentials`
+  # is not decrypting in-cluster (master key mismatch). Every Spring service was
+  # logging "Failed to export" indefinitely; tracing was not actually working.
+  #
+  # Reactivation path (choose one):
+  #   a) Re-enable per service in environments/prod/values-<svc>.yaml once the
+  #      SealedSecret is verified to decrypt and traces arrive in Grafana Cloud.
+  #   b) Flip this chart default back to true once a runbook validates decryption
+  #      end-to-end across all services.
+  #
+  # (TODO: open issue & link runbook docs/runbooks/otel-reactivation.md)
+  # See also: docs/adr/0002-disable-otel-default-in-spring-microservice-chart.md
+  enabled: false
   # Esposto come resource attribute deployment.environment.
   environment: prod
   # Protocollo OTLP: http/protobuf è il più compatibile con i gateway gestiti.
