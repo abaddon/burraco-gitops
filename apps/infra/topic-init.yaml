@@ -20,3 +20,9 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      # 2026-05-27 (ADR-0020): Replace=true forces ArgoCD to recreate the
+      # kafka-topic-init Job (whose Pod template is immutable) on each sync
+      # instead of failing the diff with a `Forbidden: field is immutable`
+      # error. Combined with dropping the PreSync hook on the Job itself,
+      # this makes topic provisioning self-heal on every ~3-min reconcile.
+      - Replace=true
