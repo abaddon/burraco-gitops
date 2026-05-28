@@ -3,13 +3,23 @@ kind: Job
 metadata:
   name: kafka-topic-init
   namespace: infra
+  # 2026-05-27 (ADR-0020): dropped argocd.argoproj.io/hook: PreSync so the Job
+  # re-runs on every ArgoCD sync of the topic-init Application (~3 min cycle
+  # with selfHeal=true) instead of only at first reconcile. Combined with
+  # `argocd.argoproj.io/sync-options: Replace=true` below, this guarantees
+  # the Job's pod is recreated each sync — the immutable Pod template would
+  # otherwise block in-place updates and the Job would never re-run.
   annotations:
-    argocd.argoproj.io/hook: PreSync
-    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-options: Replace=true
+  labels:
+    app: kafka-topic-init
 spec:
   backoffLimit: 6
-  ttlSecondsAfterFinished: 3600
+  ttlSecondsAfterFinished: 600
   template:
+    metadata:
+      labels:
+        app: kafka-topic-init
     spec:
       restartPolicy: OnFailure
       containers:
@@ -22,7 +32,8 @@ spec:
             - /bin/sh
             - -c
             - |
-              set -e
+              set -eu
+              echo "[topic-init] broker=${BROKER}"
               for entry in \
                 "identity.events:3" \
                 "player.events:3" \
@@ -37,13 +48,29 @@ spec:
                 "notification.requests:3"; do
                 topic="${entry%%:*}"
                 partitions="${entry##*:}"
-                rpk topic create "$topic" \
+                # rpk topic create with --if-not-exists exits 0 whether the
+                # topic was newly created or already existed; we capture the
+                # output so the operator can see which case applied per topic.
+                out=$(rpk topic create "$topic" \
                   --partitions "$partitions" \
                   --replicas 1 \
                   --if-not-exists \
-                  --brokers "$BROKER"
+                  --brokers "$BROKER" 2>&1) || {
+                  echo "[topic-init] ERROR $topic: $out"
+                  exit 1
+                }
+                # rpk prints "TOPIC  STATUS\n<name>  OK" on create, or a
+                # line containing "TOPIC_ALREADY_EXISTS" when --if-not-exists
+                # short-circuits. Normalise to one line per topic.
+                if echo "$out" | grep -q "TOPIC_ALREADY_EXISTS"; then
+                  echo "[topic-init] already-exists $topic (partitions=$partitions)"
+                else
+                  echo "[topic-init] created $topic (partitions=$partitions)"
+                fi
               done
+              echo "[topic-init] --- final broker topic list ---"
               rpk topic list --brokers "$BROKER"
+              echo "[topic-init] done"
           resources:
             requests:
               cpu: 50m

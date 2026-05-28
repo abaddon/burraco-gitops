@@ -68,6 +68,13 @@ spec:
               value: {{ .Values.otel.tracesSampler | quote }}
             - name: OTEL_TRACES_SAMPLER_ARG
               value: {{ .Values.otel.tracesSamplerArg | quote }}
+            {{- else }}
+            # OTel disabled — silenzia esplicitamente la SDK del Java agent
+            # baked-in (docker/Dockerfile.prebuilt). Senza questa env var
+            # l'agent boota con endpoint default http://localhost:4318 e
+            # spamma "Failed to export" ogni ~10s. Vedi ADR-0020.
+            - name: OTEL_SDK_DISABLED
+              value: "true"
             {{- end }}
           envFrom:
             {{- range .Values.envFromSecrets }}
