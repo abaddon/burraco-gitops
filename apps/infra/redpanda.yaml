@@ -27,3 +27,38 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      - RespectIgnoreDifferences=true
+  # 2026-05-29 (post ArgoCD v3.4.3 upgrade): the Redpanda Helm chart leaves
+  # several StatefulSet fields unset, and the Kubernetes API server fills
+  # them in with defaults. ArgoCD's structured-merge diff treats those
+  # defaults as drift since the chart's desired state does not declare
+  # them. The StatefulSet's only field managers are `argocd-controller`
+  # (us, on /spec) and `k3s` (status only) — no operator is mutating the
+  # workload. The drift is purely K8s-default-fill vs SSA strictness.
+  #
+  # RespectIgnoreDifferences=true above tells the syncer to honour the
+  # ignoreDifferences list at sync time, not only at diff time, so
+  # selfHeal won't keep trying to re-apply removed defaults.
+  ignoreDifferences:
+    - group: apps
+      kind: StatefulSet
+      name: redpanda
+      namespace: infra
+      jsonPointers:
+        - /spec/revisionHistoryLimit
+        - /spec/persistentVolumeClaimRetentionPolicy
+        - /spec/updateStrategy
+        - /spec/template/spec/dnsPolicy
+        - /spec/template/spec/restartPolicy
+        - /spec/template/spec/schedulerName
+        - /spec/template/spec/securityContext/fsGroupChangePolicy
+      jqPathExpressions:
+        # Every container + initContainer carries three K8s-defaulted
+        # fields the chart never sets: imagePullPolicy, terminationMessagePath,
+        # terminationMessagePolicy. Ignore them across all containers.
+        - .spec.template.spec.containers[].imagePullPolicy
+        - .spec.template.spec.containers[].terminationMessagePath
+        - .spec.template.spec.containers[].terminationMessagePolicy
+        - .spec.template.spec.initContainers[].imagePullPolicy
+        - .spec.template.spec.initContainers[].terminationMessagePath
+        - .spec.template.spec.initContainers[].terminationMessagePolicy
