@@ -3,7 +3,7 @@
 # Idempotente: rieseguibile senza danni.
 set -euo pipefail
 
-ARGOCD_VERSION="v2.13.0"
+ARGOCD_VERSION="v3.4.3"
 SEALED_SECRETS_VERSION="v0.27.0"
 CERT_MANAGER_VERSION="v1.16.1"
 
