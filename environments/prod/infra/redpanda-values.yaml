@@ -3,13 +3,33 @@ statefulset:
   replicas: 1
 
 resources:
+  # 2026-05-29 (second attempt — first attempt PR #15 crashed the pod
+  # because memory was not bumped alongside CPU; reverted via PR #16):
+  #
+  # Bumping CPU 1 → 2 to reduce reactor stalls (~14% of log lines on a
+  # single shard). Redpanda's syschecks enforce a HARD MINIMUM of
+  # 1 GiB per Seastar shard, and `resources.redpanda.memory` is the
+  # TOTAL pool, split equally across shards. So with 2 shards we need:
+  #
+  #   redpanda.memory  = 2 GiB     (1 GiB per shard × 2 shards)
+  #   container.max    = 2.5 GiB   (Redpanda pool + ~512 MiB OS overhead
+  #                                 for page cache, kernel allocations,
+  #                                 and config-watcher sidecar)
+  #
+  # `overprovisioned: true` is preserved — it only relaxes CPU pinning
+  # and memory locking checks, it does NOT skip the per-shard minimum
+  # memory requirement (this was the failure mode of PR #15).
+  #
+  # Node memory headroom check at time of writing:
+  #   Cluster requests: 6546 Mi / 12 GiB = 54%
+  #   Adding +1024 Mi:  7570 Mi / 12 GiB = 62%   (comfortable)
   cpu:
-    cores: 1
+    cores: 2
   memory:
     container:
-      max: 1536Mi
+      max: 2560Mi
   redpanda:
-    memory: 1G
+    memory: 2G
     reserveMemory: 0M
     overprovisioned: true
 
