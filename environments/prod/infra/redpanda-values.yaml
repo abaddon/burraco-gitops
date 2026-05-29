@@ -3,8 +3,17 @@ statefulset:
   replicas: 1
 
 resources:
+  # 2026-05-29: bumped 1 → 2 cores. Redpanda's Seastar architecture runs
+  # one reactor per core; with a single core, all I/O completions,
+  # replication, and background tasks queue on shard 0, and any
+  # blocking-ish work (ext4 journal commits on segment fsync, segment
+  # lifecycle on local-path PV, schema-registry restarts) shows up as
+  # "Reactor stalled for N ms on shard 0" log spam — 235 stalls per
+  # 2000 log lines (~14%) with durations 103–513 ms. Node has plenty
+  # of headroom (3.3/6 cores currently requested cluster-wide).
+  # Redpanda's own docs recommend ≥ 2 cores for production.
   cpu:
-    cores: 1
+    cores: 2
   memory:
     container:
       max: 1536Mi
