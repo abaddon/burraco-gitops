@@ -23,3 +23,40 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+  # 2026-05-29: the CloudNativePG controller mutates the Cluster CR's spec
+  # with operator-controlled defaults after creation, but does not use
+  # Server-Side Apply (its field manager registers as the generic
+  # "manager", not a named CNPG controller). As a result the
+  # `ServerSideApply=true` option above cannot detect that those fields
+  # are operator-owned, and ArgoCD permanently reports the Application
+  # as OutOfSync. The Cluster itself is Healthy and serving traffic.
+  #
+  # The jsonPointers below cover every field the CNPG controller injects
+  # under .spec. Manifest-authored fields (instances, imageName, storage,
+  # bootstrap.initdb.{database,owner,secret,postInitApplicationSQL},
+  # monitoring.enablePodMonitor, resources.requests) are NOT in this
+  # list — drift on those still trips Argo, which is what we want.
+  ignoreDifferences:
+    - group: postgresql.cnpg.io
+      kind: Cluster
+      jsonPointers:
+        - /spec/affinity
+        - /spec/bootstrap/initdb/encoding
+        - /spec/bootstrap/initdb/localeCType
+        - /spec/bootstrap/initdb/localeCollate
+        - /spec/enablePDB
+        - /spec/enableSuperuserAccess
+        - /spec/failoverDelay
+        - /spec/logLevel
+        - /spec/maxSyncReplicas
+        - /spec/minSyncReplicas
+        - /spec/monitoring/customQueriesConfigMap
+        - /spec/monitoring/disableDefaultQueries
+        - /spec/postgresGID
+        - /spec/postgresUID
+        - /spec/postgresql
+        - /spec/primaryUpdateMethod
+        - /spec/primaryUpdateStrategy
+        - /spec/replicationSlots
+        - /spec/resources/limits/cpu
+        - /spec/smartShutdownTimeout
