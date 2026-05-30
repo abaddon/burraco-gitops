@@ -1,7 +1,7 @@
 name: player-service
 image:
   repository: ghcr.io/abaddon/ai-burraco-player-service
-  tag: c602dc0a7fdc3c3b3e97a322d69f621cabfdec63
+  tag: 052ffa62661c3b80b7c07b2034f1d69002bbadd1
 service:
   port: 8082
 database:
