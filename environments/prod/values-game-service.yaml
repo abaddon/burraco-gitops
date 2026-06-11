@@ -14,7 +14,7 @@ ingress:
 # game-service è l'event-sourced aggregate; serve un po' più di memoria per snapshot/replay
 resources:
   requests:
-    cpu: 300m
+    cpu: 150m
     memory: 640Mi
   limits:
     cpu: 1500m
