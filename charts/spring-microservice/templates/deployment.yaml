@@ -7,6 +7,14 @@ metadata:
     {{- include "spring-microservice.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # Roll old-pod-first (no surge): the single-node prod cluster has no
+      # spare capacity for a 2x-pods surge during updates. maxUnavailable:1
+      # removes the old pod before the new one starts.
+      maxSurge: {{ .Values.rollout.maxSurge }}
+      maxUnavailable: {{ .Values.rollout.maxUnavailable }}
   selector:
     matchLabels:
       {{- include "spring-microservice.selectorLabels" . | nindent 6 }}

@@ -12,6 +12,12 @@ image:
 
 replicas: 1
 
+# Rolling-update strategy. The prod cluster is a single node with ~0 spare
+# capacity, so we roll old-pod-first (no surge) to avoid running 2x pods.
+rollout:
+  maxSurge: 0
+  maxUnavailable: 1
+
 service:
   port: 8080                   # porta interna del container Spring Boot
 
