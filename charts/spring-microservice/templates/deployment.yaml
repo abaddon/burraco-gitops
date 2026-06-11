@@ -88,6 +88,12 @@ spec:
                 name: {{ .Values.otel.credentialsSecret }}
                 optional: true
             {{- end }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.healthcheck.path }}
+              port: http
+            periodSeconds: {{ .Values.healthcheck.startupPeriodSeconds }}
+            failureThreshold: {{ .Values.healthcheck.startupFailureThreshold }}
           livenessProbe:
             httpGet:
               path: {{ .Values.healthcheck.path }}

@@ -67,6 +67,11 @@ healthcheck:
   path: /actuator/health
   livenessInitialDelaySeconds: 60
   readinessInitialDelaySeconds: 30
+  # Startup probe gates liveness/readiness until the JVM has finished booting
+  # (Flyway + JPA cold start can exceed the liveness window, especially under
+  # node CPU contention during a rolling update). 30 x 10s = up to 300s budget.
+  startupPeriodSeconds: 10
+  startupFailureThreshold: 30
 
 # Prometheus scraping (Grafana Cloud via Alloy)
 metrics:
