@@ -21,10 +21,14 @@ rollout:
 service:
   port: 8080                   # porta interna del container Spring Boot
 
-# Risorse — tight per stare nei 12 GB del VPS
+# Risorse — tight per stare nei 12 GB del VPS.
+# CPU request is the binding scheduling constraint on the single-node cluster
+# (was ~95% allocated). Idle usage is 8-165m, so request 100m fits actual
+# load; the 1000m limit still allows a fast JVM cold start. Memory request is
+# kept at the real working set (~440-490Mi observed) to avoid eviction.
 resources:
   requests:
-    cpu: 200m
+    cpu: 100m
     memory: 512Mi
   limits:
     cpu: 1000m

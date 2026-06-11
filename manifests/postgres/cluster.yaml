@@ -32,10 +32,10 @@ spec:
 
   resources:
     requests:
-      memory: 512Mi
-      cpu: 250m
+      memory: 384Mi
+      cpu: 150m
     limits:
-      memory: 1Gi
+      memory: 768Mi
       cpu: 2000m
 
   # Metriche: il pod CNPG espone Prometheus su :9187 con annotation custom.
