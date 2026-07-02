@@ -1,7 +1,7 @@
 name: tournament-service
 image:
   repository: ghcr.io/abaddon/ai-burraco-tournament-service
-  tag: 60feebaaf8a1542f537b89229405b164fe515f72
+  tag: b9f8a8d0897d855457265fc2d91d362a3418abde
 service:
   port: 8086
 database:
