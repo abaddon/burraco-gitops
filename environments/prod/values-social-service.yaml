@@ -1,7 +1,7 @@
 name: social-service
 image:
   repository: ghcr.io/abaddon/ai-burraco-social-service
-  tag: 28d25bf20bb7ecc8a4175ea7e11df190aa8d5966
+  tag: 8f1eb20f5e6e23c209557b3aba4d2ec579e967be
 service:
   port: 8083
 database:
