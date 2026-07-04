@@ -1,7 +1,7 @@
 name: ranking-service
 image:
   repository: ghcr.io/abaddon/ai-burraco-ranking-service
-  tag: 06552685d7e740407e5e451e16c8d8b403a02ca0
+  tag: 82797cb773f88e8c25569d849544ace458c73f5e
 service:
   port: 8087
 database:
