@@ -1,7 +1,7 @@
 name: lobby-service
 image:
   repository: ghcr.io/abaddon/ai-burraco-lobby-service
-  tag: 3fa7fcf1bd0876bbe47a71ce0fc81c9d45ed072a
+  tag: cfa72359f2cd173e200579a90dde3f129d8fe7b4
 service:
   port: 8084
 database:
