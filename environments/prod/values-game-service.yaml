@@ -1,7 +1,7 @@
 name: game-service
 image:
   repository: ghcr.io/abaddon/ai-burraco-game-service
-  tag: e053e5bda2b25e72f8557dd34891674f08326d9f
+  tag: 49bbd56b423beaeaf825317a6390638b7841db8d
 service:
   port: 8085
 database:
