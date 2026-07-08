@@ -1,7 +1,7 @@
 name: identity-service
 image:
   repository: ghcr.io/abaddon/ai-burraco-identity-service
-  tag: 5ce45e533bf4a704bd4be46b2b8d10656402cf58
+  tag: f448932e0dfe495faca2bb82c6c1cf4aade47a42
 service:
   port: 8091
 database:
