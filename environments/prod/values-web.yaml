@@ -1,3 +1,3 @@
 # Override prod del chart nextjs-web — al momento usa i default
 image:
-  tag: 5ce45e533bf4a704bd4be46b2b8d10656402cf58
+  tag: f448932e0dfe495faca2bb82c6c1cf4aade47a42
