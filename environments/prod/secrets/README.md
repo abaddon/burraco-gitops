@@ -11,6 +11,7 @@ Sono safe da committare: solo il controller `sealed-secrets-controller` nel clus
 | `redis-password` | `REDIS_PASSWORD`, `SPRING_DATA_REDIS_PASSWORD` | tutti i servizi Spring + chart redis |
 | `jwt-keys` | `JWT_PUBLIC_KEY`, `JWT_PRIVATE_KEY` | identity-service (privata + pubblica), altri servizi (solo pubblica) |
 | `brevo-api-key` | `BREVO_API_KEY` | identity-service, notification-service |
+| `agent-stream-notifier-credentials` | `CONSUMER_TOKEN`, `PUBLISH_TOKEN_GITHUB`, `PUBLISH_TOKEN_HOME_ASSISTANT` | agent-stream-notifier |
 | `otel-otlp-credentials` | `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_HEADERS` | tutti i servizi Spring (tracing OTLP) |
 | `grafana-cloud-credentials` | `PROM_REMOTE_WRITE_URL`, `PROM_USER`, `PROM_PASS`, `LOKI_PUSH_URL`, `LOKI_USER`, `LOKI_PASS` | grafana-alloy |
 | `tailscale-oauth` | `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_CLIENT_SECRET` | tailscale-operator (in realtà passato via helm install, vedi `bootstrap/install.sh`) |
@@ -49,6 +50,33 @@ kubectl create secret generic otel-otlp-credentials \
 
 git add environments/prod/secrets/otel-otlp-credentials.sealed.yaml
 git commit -m "feat(secrets): otel otlp credentials"
+```
+
+## `agent-stream-notifier-credentials` — token del servizio
+
+Il servizio `agent_stream_notifier` legge i token dall'ambiente (namespace `burraco`),
+iniettati via `envFrom` dal chart `node-service`:
+
+| Chiave | Ruolo |
+|---|---|
+| `CONSUMER_TOKEN` | token dell'Orchestrator Agent, abilita `GET /events` |
+| `PUBLISH_TOKEN_GITHUB` | source `github`, abilita `POST /events` |
+| `PUBLISH_TOKEN_HOME_ASSISTANT` | source `home-assistant`, abilita `POST /events` |
+
+Generali con `openssl rand -hex 32` e sigillali con `kubeseal` (vedi sotto). Il servizio
+**rifiuta di partire** se manca `CONSUMER_TOKEN`, se un publish token è vuoto, se un publish
+token è uguale al consumer, o se due publish token coincidono.
+
+```bash
+kubectl create secret generic agent-stream-notifier-credentials \
+  --namespace=burraco \
+  --from-literal=CONSUMER_TOKEN='<openssl rand -hex 32>' \
+  --from-literal=PUBLISH_TOKEN_GITHUB='<openssl rand -hex 32>' \
+  --from-literal=PUBLISH_TOKEN_HOME_ASSISTANT='<openssl rand -hex 32>' \
+  --dry-run=client -o yaml | \
+  kubeseal --controller-namespace=kube-system \
+    --controller-name=sealed-secrets-controller -o yaml \
+  > environments/prod/secrets/agent-stream-notifier-credentials.sealed.yaml
 ```
 
 ## Generare un SealedSecret

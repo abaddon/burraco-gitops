@@ -1,0 +1,20 @@
+name: agent-stream-notifier
+image:
+  repository: ghcr.io/abaddon/agent-stream-notifier
+  tag: main          # bumped by CI
+service:
+  port: 8787
+envFromSecrets:
+  - agent-stream-notifier-credentials
+ingress:
+  pathPrefixes:
+    - /events
+    - /health
+# In-memory service, low traffic — minimal resources.
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 128Mi
