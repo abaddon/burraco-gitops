@@ -2,6 +2,8 @@ name: agent-stream-notifier
 image:
   repository: ghcr.io/abaddon/agent-stream-notifier
   tag: 4c565135fb08362aa0f7066ca3fd2f873321e7bf # bumped by CI
+  pullSecrets:
+    - ghcr-pull
 service:
   port: 8787
 envFromSecrets:
