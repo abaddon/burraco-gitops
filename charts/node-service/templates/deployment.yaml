@@ -20,6 +20,10 @@ spec:
       labels:
         {{- include "node-service.labels" . | nindent 8 }}
     spec:
+      imagePullSecrets:
+        {{- range .Values.image.pullSecrets }}
+        - name: {{ . }}
+        {{- end }}
       containers:
         - name: app
           image: "{{ required "values.image.repository is required" .Values.image.repository }}:{{ .Values.image.tag }}"

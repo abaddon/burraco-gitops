@@ -9,6 +9,7 @@ image:
   repository: ""               # required: ghcr.io/abaddon/agent-stream-notifier
   tag: "main"                  # bumped by CI
   pullPolicy: IfNotPresent
+  pullSecrets: []              # optional: names of imagePullSecrets for private registries
 
 replicas: 1
 
