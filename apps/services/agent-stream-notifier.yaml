@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: agent-stream-notifier
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/abaddon/burraco-gitops
+      targetRevision: main
+      path: charts/node-service
+      helm:
+        valueFiles:
+          - $values/environments/prod/values-agent-stream-notifier.yaml
+    - repoURL: https://github.com/abaddon/burraco-gitops
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: burraco
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

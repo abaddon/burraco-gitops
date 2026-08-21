@@ -17,7 +17,8 @@ burraco-gitops/
 │   └── services/               # ApplicationSet per gli 8 Spring Boot + web
 ├── charts/
 │   ├── spring-microservice/    # un chart parametrizzato per tutti gli 8 backend
-│   └── nextjs-web/             # chart per il frontend Next.js
+│   ├── nextjs-web/             # chart per il frontend Next.js
+│   └── node-service/           # chart generico per servizi Node.js (agent_stream_notifier)
 └── environments/
     └── prod/
         ├── values-*.yaml       # uno per servizio (image tag, env specifici)
@@ -38,11 +39,22 @@ Lo script installa: ArgoCD, Sealed Secrets controller, cert-manager, Tailscale O
 
 ## Aggiungere un nuovo servizio
 
-1. Crea `environments/prod/values-{nome}.yaml` (copia da `values-identity.yaml`).
+### Servizio Spring Boot
+
+1. Crea `environments/prod/values-{nome}.yaml` (copia da `values-identity-service.yaml`).
 2. Aggiungi `{nome}` alla lista in `apps/services/backend-applicationset.yaml`.
 3. Commit → push → ArgoCD lo deploya in ~1 minuto.
 
 Niente altro: il chart `charts/spring-microservice` copre tutti i servizi Spring Boot via parametri.
+
+### Servizio Node.js (es. agent_stream_notifier)
+
+1. Crea `environments/prod/values-{nome}.yaml` (copia da `values-agent-stream-notifier.yaml`).
+2. Aggiungi un `Application` dedicato in `apps/services/{nome}.yaml` (copia da `agent-stream-notifier.yaml`).
+3. Sigilla i token richiesti come SealedSecret (vedi `environments/prod/secrets/README.md`).
+4. Commit → push → ArgoCD lo deploya.
+
+Il chart `charts/node-service` è il corrispettivo generico per i servizi Node (niente Spring/JVM).
 
 ## Aggiornare l'immagine di un servizio (deploy)
 

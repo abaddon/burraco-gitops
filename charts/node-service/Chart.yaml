@@ -1,0 +1,6 @@
+apiVersion: v2
+name: node-service
+description: Generic Node.js service chart (agent_stream_notifier and future Node services)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

@@ -1,0 +1,22 @@
+{{- if and .Values.ingress.enabled .Values.ingress.pathPrefixes }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "node-service.name" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "node-service.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    {{- range .Values.ingress.pathPrefixes }}
+    - match: Host(`{{ $.Values.ingress.host }}`) && PathPrefix(`{{ . }}`)
+      kind: Rule
+      services:
+        - name: {{ include "node-service.name" $ }}
+          port: {{ $.Values.service.port }}
+    {{- end }}
+  tls:
+    secretName: {{ .Values.ingress.tlsSecretName }}
+{{- end }}
