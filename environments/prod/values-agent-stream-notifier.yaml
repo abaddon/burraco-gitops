@@ -8,6 +8,8 @@ service:
   port: 8787
 envFromSecrets:
   - agent-stream-notifier-credentials
+env:
+  KAFKA_BROKERS: redpanda.infra.svc.cluster.local:9092
 ingress:
   pathPrefixes:
     - /events

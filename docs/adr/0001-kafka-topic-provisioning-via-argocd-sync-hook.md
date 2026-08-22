@@ -77,8 +77,8 @@ in-namespace TCP call, not a Kubernetes API call, so no
 ClusterRole / ClusterRoleBinding / Role / RoleBinding is required. AC-6
 is satisfied trivially.
 
-**Topic list** (from story scenario table, 11 topics, replication
-factor 1):
+**Topic list** (from story scenario table, 11 application topics + the agent
+stream's topic, replication factor 1):
 
 | topic                  | partitions |
 | ---------------------- | ---------- |
@@ -93,6 +93,13 @@ factor 1):
 | ranking.results        | 3          |
 | tournament.events      | 3          |
 | notification.requests  | 3          |
+| agent_notifications    | 10         |
+
+`agent_notifications` is agent_stream_notifier's topic (its ADR-0004), added
+2026-08-22: 10 partitions and `retention.ms=1800000` (30 minutes), created with
+`rpk topic create --config retention.ms=1800000` — the first topic in this Job
+with a non-default config, and the first created outside the shared loop (see
+the Job spec).
 
 The list lives in the Job spec (a shell `for` loop or a small embedded
 YAML/script). It is the single source of truth in this repo. If the
